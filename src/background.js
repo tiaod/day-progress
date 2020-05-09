@@ -1,6 +1,8 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, Tray } from 'electron'
+import { progress, clean } from 'electron-tray-indicator'
+import path from 'path'
 import {
   createProtocol,
   /* installVueDevtools */
@@ -18,7 +20,7 @@ function createWindow () {
   // Create the browser window.
   win = new BrowserWindow({ width: 800, height: 600, webPreferences: {
     nodeIntegration: true
-  } })
+  }, frame: true, transparent:true})
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
@@ -71,6 +73,7 @@ app.on('ready', async () => {
 
   }
   createWindow()
+  let tray = new Tray(path.join(__dirname, 'assets/logo.png'))
 })
 
 // Exit cleanly on request from parent process in development mode.
