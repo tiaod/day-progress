@@ -15,6 +15,9 @@
               v-col
                 strong {{ progress }}%
                 p {{ timeLeft }}
+                //- p now: {{ now.calendar() }}
+                //- p 开始时间{{ startDay.calendar() }}
+                //- p 结束时间{{ endDay.calendar() }}
               v-col
                 v-btn(text, icon, color='grey', @click='dialog=true').float-right
                   v-icon {{ mdiCog }}
@@ -52,7 +55,7 @@ export default {
       start: localStorage.getItem('settings.start') || '9:00', //早上9点
       end: localStorage.getItem('settings.end') || '22:00', //晚上10点
       color: 'primary', // 进度条颜色
-      now: dayjs() ,//dayjs().set('hour', 7).set('minute', 59).set('second', 45), 
+      now: dayjs(), //dayjs().set('hour', 4).set('minute',0).set('second', 45), 
       mdiCog,
       mdiClock,
       mdiClose
@@ -62,18 +65,32 @@ export default {
     setInterval(()=>this.now = dayjs(),1000)
   },
   computed:{
-    timeLeft(){
+    endDay(){
       let end = this.end.split(':').map(i=>parseInt(i))
-      end = dayjs().set('hour', end[0]).set('minute', end[1])
-      let res = this.now.to(end)
+      end = this.now.set('hour', end[0]).set('minute', end[1])
+      if(end.isBefore(this.startDay)){
+        end = end.add(1, 'day')
+      }
+      return end
+    },
+    startDay(){
+      let start = this.start.split(':').map(i=>parseInt(i))
+      start = this.now.set('hour', start[0]).set('minute', start[1])
+      if(this.now.hour() < 6){ //凌晨6点之前的，都算前一天
+        start = start.subtract(1, 'day')
+      }
+      return start
+    },
+
+    timeLeft(){
+
+      let res = this.now.to(this.endDay)
       return res.substr(0, res.length - 1)
     },
     progress(){
-      let end = this.end.split(':').map(i=>parseInt(i))
-      end = dayjs().set('hour', end[0]).set('minute', end[1])
-      let start = this.start.split(':').map(i=>parseInt(i))
-      start = dayjs().set('hour', start[0]).set('minute', start[1])
-      let progress = (this.now.unix() - end.unix())/(start.unix() - end.unix())*100
+      
+      let progress = (this.now.unix() - this.endDay.unix())/(this.startDay.unix() - this.endDay.unix())
+      progress = progress*100
       progress = progress.toFixed(2)
       if(progress < 0){
         this.color = 'error'

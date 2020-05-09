@@ -10,6 +10,7 @@
 
 推荐使用[Wallpaper engine](https://www.wallpaperengine.io/)或者[lively](https://github.com/rocksdanister/lively)之类的工具设置为桌面背景。
 
+看着时间像手机电池电量一样减少，感觉是很奇妙的。
 
 ## Features
 - 自定义开始和结束时间
