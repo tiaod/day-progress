@@ -27,7 +27,7 @@
           v-card
             v-card-title 设置
               v-spacer
-              v-btn(text ,icon, @click='dialog=false')
+              v-btn(text ,icon, @click='save')
                 v-icon {{ mdiClose }}
             v-card-text
               v-form
