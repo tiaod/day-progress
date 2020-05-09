@@ -15,6 +15,8 @@
               v-col
                 strong {{ progress }}%
                 p {{ timeLeft }}
+                //- p {{ now.unix() - endDay.unix() }}
+                //- p {{ startDay.unix() - endDay.unix() }}
                 //- p now: {{ now.calendar() }}
                 //- p 开始时间{{ startDay.calendar() }}
                 //- p 结束时间{{ endDay.calendar() }}
@@ -67,7 +69,7 @@ export default {
   computed:{
     endDay(){
       let end = this.end.split(':').map(i=>parseInt(i))
-      end = this.now.set('hour', end[0]).set('minute', end[1])
+      end = this.now.set('hour', end[0]).set('minute', end[1]).set('second', 0)
       if(end.isBefore(this.startDay)){
         end = end.add(1, 'day')
       }
@@ -75,7 +77,7 @@ export default {
     },
     startDay(){
       let start = this.start.split(':').map(i=>parseInt(i))
-      start = this.now.set('hour', start[0]).set('minute', start[1])
+      start = this.now.set('hour', start[0]).set('minute', start[1]).set('second', 0)
       if(this.now.hour() < 6){ //凌晨6点之前的，都算前一天
         start = start.subtract(1, 'day')
       }
@@ -83,7 +85,6 @@ export default {
     },
 
     timeLeft(){
-
       let res = this.now.to(this.endDay)
       return res.substr(0, res.length - 1)
     },
@@ -91,7 +92,7 @@ export default {
       
       let progress = (this.now.unix() - this.endDay.unix())/(this.startDay.unix() - this.endDay.unix())
       progress = progress*100
-      progress = progress.toFixed(2)
+      progress = progress.toFixed(3)
       if(progress < 0){
         this.color = 'error'
         return -progress
