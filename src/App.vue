@@ -21,4 +21,5 @@ export default {
 <style lang="stylus">
 html
   overflow-y hidden !important
+  user-select none
 </style>
