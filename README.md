@@ -15,8 +15,11 @@
 ## Features
 - 自定义开始和结束时间
 - 暗色/亮色模式
+- 自定义主题颜色
+- 设置背景图片（需要填写背景图片的地址）
+- 参数保存到url，方便复制链接到lively设置壁纸
 
-
+![demo2](docs/demo2.jpg)
 # Project setup
 ```
 npm install
