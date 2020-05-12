@@ -13,7 +13,7 @@
                     :size='280'
                     :width='40'
                     :value='progress'
-                    color='primary'
+                    :color='color'
                   )
                     strong.headline {{ progress }}%
                   p.mt-3 {{ timeLeft }}
@@ -23,7 +23,7 @@
                 v-progress-linear(
                   :reverse='true'
                   :value="progress"
-                  color='primary'
+                  :color='color'
                   height="65")
                 v-row
                   v-col
