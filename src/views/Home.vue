@@ -1,39 +1,40 @@
 <template lang="pug">
   v-app
     v-content
-      v-container(fill-height)
-        v-row
-          v-col
-            v-alert(v-if='color=="error"', dense, outlined, type='error')
-              | 警告：你正在透支明天！
-            template(v-if='circular')
-              .text-center
-                v-progress-circular(
-                  :size='280'
-                  :width='40'
-                  :value='progress'
+      v-img(height='100vh', width='100vw', :src='background')
+        v-container(fill-height)
+          v-row
+            v-col
+              v-alert(v-if='color=="error"', dense, outlined, type='error')
+                | 警告：你正在透支明天！
+              template(v-if='circular')
+                .text-center
+                  v-progress-circular(
+                    :size='280'
+                    :width='40'
+                    :value='progress'
+                    color='primary'
+                  )
+                    strong.headline {{ progress }}%
+                  p.mt-3 {{ timeLeft }}
+                    v-btn(text, icon, @click='dialog=true')
+                      v-icon {{ mdiCog }}
+              template(v-else)
+                v-progress-linear(
+                  :reverse='true'
+                  :value="progress"
                   color='primary'
-                )
-                  strong.headline {{ progress }}%
-                p.mt-3 {{ timeLeft }}
-                  v-btn(text, icon, color='grey', @click='dialog=true')
-                    v-icon {{ mdiCog }}
-            template(v-else)
-              v-progress-linear(
-                :reverse='true'
-                :value="progress"
-                :color='color'
-                height="65")
-              v-row
-                v-col
-                  strong {{ progress }}%
-                  p {{ timeLeft }}
-                  //- p now: {{ now.calendar() }}
-                  //- p 开始时间{{ startDay.calendar() }}
-                  //- p 结束时间{{ endDay.calendar() }}
-                v-col
-                  v-btn(text, icon, color='grey', @click='dialog=true').float-right
-                    v-icon {{ mdiCog }}
+                  height="65")
+                v-row
+                  v-col
+                    strong {{ progress }}%
+                    p {{ timeLeft }}
+                    //- p now: {{ now.calendar() }}
+                    //- p 开始时间{{ startDay.calendar() }}
+                    //- p 结束时间{{ endDay.calendar() }}
+                  v-col
+                    v-btn(text, icon, @click='dialog=true').float-right
+                      v-icon {{ mdiCog }}
         v-dialog(v-model='dialog', max-width='800', persistent)
           v-card
             v-card-title 设置
@@ -44,8 +45,11 @@
               v-form
                 v-row
                   v-col
+                    v-text-field(v-model='background' label='背景图片地址')
                     v-switch(label='暗黑模式', v-model='$vuetify.theme.dark')
                     v-switch(label='环形进度条', v-model='circular')
+                    ColorPicker(v-if='$vuetify.theme.dark', v-model='$vuetify.theme.themes.dark.primary', label='颜色')
+                    ColorPicker(v-else, v-model='$vuetify.theme.themes.light.primary', label='颜色')
                     //- v-text-field(label='起床时间')
                     TimePicker(v-model='start', label='起床时间')
                     TimePicker(v-model='end', label='睡觉时间')
@@ -55,25 +59,27 @@
             v-card-actions
               v-spacer
               v-btn(color='primary', @click='save') 保存
-                      
+
 </template>
 
 <script>
 // @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
 import TimePicker from '@/components/TimePicker.vue'
+import ColorPicker from '@/components/ColorPicker.vue'
 import dayjs from 'dayjs'
 import { mdiCog, mdiClock, mdiClose } from '@mdi/js'
+import isEqual from 'lodash/isEqual'
 export default {
   name: 'Home',
   data(){
     return {
+      background: '',
       dialog: false, //设置弹窗
-      start: localStorage.getItem('settings.start') || '9:00', //早上9点
+      start: '9:00', //早上9点
       end: localStorage.getItem('settings.end') || '22:00', //晚上10点
       color: 'primary', // 进度条颜色
       circular: localStorage.getItem('settings.circular') == 'true', //圆环进度条
-      now: dayjs(), //dayjs().set('hour', 1).set('minute',0).set('second', 45), 
+      now: dayjs(), //dayjs().set('hour', 1).set('minute',0).set('second', 45),
       newDayBegins: localStorage.getItem('settings.newDayBegins') || '6:00', //两天的分界线
       mdiCog,
       mdiClock,
@@ -113,7 +119,6 @@ export default {
       return res.substr(0, res.length - 1)
     },
     progress(){
-      
       let progress = (this.now.unix() - this.endDay.unix())/(this.startDay.unix() - this.endDay.unix())
       progress = progress*100
       progress = progress.toFixed(3)
@@ -133,12 +138,53 @@ export default {
       localStorage.setItem('settings.dark', this.$vuetify.theme.dark)
       localStorage.setItem('settings.newDayBegins', this.newDayBegins)
       localStorage.setItem('settings.circular', this.circular)
+      localStorage.setItem('settings.themeDark', this.$vuetify.theme.themes.light.primary)
+      localStorage.setItem('settings.themeLight', this.$vuetify.theme.themes.dark.primary)
+      localStorage.setItem('settings.background', this.background)
+      let query = {
+        start: this.start,
+        end: this.end,
+        dark:this.$vuetify.theme.dark ? 'true': 'false',
+        newDayBegins:this.newDayBegins,
+        circular:this.circular? 'true': 'false',
+        themeDark:this.$vuetify.theme.themes.dark.primary,
+        themeLight:this.$vuetify.theme.themes.light.primary,
+        background:this.background
+      }
+      if(!isEqual(query, this.$route.query)){ //参数发生改变才进行修改。
+        this.$router.push({ query }) 
+      }
       this.dialog=false
+    },
+    load(query){
+      this.start = query.start || localStorage.getItem('settings.start')
+      this.end = query.end || localStorage.getItem('settings.end')
+      if(query.dark!==undefined){
+        this.$vuetify.theme.dark = query.dark == 'true'
+      }else {
+        this.$vuetify.theme.dark = localStorage.getItem('settings.dark')=='true'
+      }
+      this.$vuetify.theme.themes.dark.primary = query.themeDark || localStorage.getItem('settings.themeDark') || this.$vuetify.theme.themes.dark.primary
+      this.$vuetify.theme.themes.light.primary = query.themeLight || localStorage.getItem('settings.themeLight') || this.$vuetify.theme.themes.light.primary
+      this.newDayBegins = query.newDayBegins || '6:00'
+      this.circular = query.circular =='true',
+      this.background = query.background || localStorage.getItem('backgournd')
     }
   },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      // 通过 `vm` 访问组件实例
+      vm.load(to.query)
+    })
+  },
+  beforeRouteUpdate (to, from, next) {
+    // just use `this`
+    this.load(to.query)
+    next()
+  },
   components: {
-    HelloWorld,
-    TimePicker
+    TimePicker,
+    ColorPicker
   }
 }
 </script>
