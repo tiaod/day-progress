@@ -1,7 +1,7 @@
 <template lang="pug">
   v-app
     v-content
-      v-img(height='100vh', width='100vw', :src='background')
+      v-img(height='100vh', width='100vw', :src='background',@load='backgroundError=false', @error='backgroundError=true')
         v-container(fill-height)
           v-row
             v-col
@@ -45,7 +45,7 @@
               v-form
                 v-row
                   v-col
-                    v-text-field(v-model='background' label='背景图片地址')
+                    v-text-field(v-model='background' label='背景图片地址', :error-messages='background && backgroundError ? "图片加载失败" :""')
                     v-switch(label='暗黑模式', v-model='$vuetify.theme.dark')
                     v-switch(label='环形进度条', v-model='circular')
                     ColorPicker(v-if='$vuetify.theme.dark', v-model='$vuetify.theme.themes.dark.primary', label='颜色')
@@ -74,6 +74,7 @@ export default {
   data(){
     return {
       background: '',
+      backgroundError: false,
       dialog: false, //设置弹窗
       start: '9:00', //早上9点
       end: localStorage.getItem('settings.end') || '22:00', //晚上10点
@@ -140,7 +141,7 @@ export default {
       localStorage.setItem('settings.circular', this.circular)
       localStorage.setItem('settings.themeDark', this.$vuetify.theme.themes.light.primary)
       localStorage.setItem('settings.themeLight', this.$vuetify.theme.themes.dark.primary)
-      localStorage.setItem('settings.background', this.background)
+      if(this.background) localStorage.setItem('settings.background', this.background)
       let query = {
         start: this.start,
         end: this.end,
@@ -157,8 +158,8 @@ export default {
       this.dialog=false
     },
     load(query){
-      this.start = query.start || localStorage.getItem('settings.start')
-      this.end = query.end || localStorage.getItem('settings.end')
+      this.start = query.start || localStorage.getItem('settings.start') || '9:00'
+      this.end = query.end || localStorage.getItem('settings.end') || '22:00'
       if(query.dark!==undefined){
         this.$vuetify.theme.dark = query.dark == 'true'
       }else {
@@ -167,8 +168,12 @@ export default {
       this.$vuetify.theme.themes.dark.primary = query.themeDark || localStorage.getItem('settings.themeDark') || this.$vuetify.theme.themes.dark.primary
       this.$vuetify.theme.themes.light.primary = query.themeLight || localStorage.getItem('settings.themeLight') || this.$vuetify.theme.themes.light.primary
       this.newDayBegins = query.newDayBegins || '6:00'
-      this.circular = query.circular =='true',
-      this.background = query.background || localStorage.getItem('backgournd')
+      if(query.circular!==undefined){
+        this.circular = query.circular == 'true'
+      }else {
+        this.circular = localStorage.getItem('settings.circular')=='true'
+      }
+      this.background = query.background || localStorage.getItem('settings.backgournd') || ''
     }
   },
   beforeRouteEnter (to, from, next) {
