@@ -6,7 +6,7 @@
 
 之所以写这个，是因为找了很多个显示时间进度条的项目都不满足我的需求，那些项目都是统计0:00~24:00的，容易给人晚上时间很多的错觉，从而习惯熬夜。
 
-[在线DEMO](https://hacker-mu.uvcat.com/day-progress/#/)
+[在线DEMO](https://tiaod.github.io/day-progress/)
 
 推荐使用[Wallpaper engine](https://www.wallpaperengine.io/)或者[lively](https://github.com/rocksdanister/lively)之类的工具设置为桌面背景。
 
