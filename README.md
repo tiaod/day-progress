@@ -34,6 +34,27 @@ npm run serve
 ```
 npm run build
 ```
+# Docker 
+build docke image from Dockfile
+```
+docker build -t imagename:imagetag .
+```
+create docker container
+```
+docker run -p 8888:8080 -itd --name containname imagename:imagetag npm run serve
+```
+access 
+```
+localhost:8888/day-progress
+```
+Run a command in a running container
+```
+docker exec -it containname sh
+```
 
+Compiles and minifies for production
+```
+npm run build
+```
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
